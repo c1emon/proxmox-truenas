@@ -26,7 +26,7 @@
 - **THEN** 前者保留旧产物并失败，后者可生成有效补丁并成功
 
 ### Requirement: UI references and documented support
-PVE 8/9 Patch UI SHALL 能切换 provider 而不触发缺失引用异常，正确清理不适用字段。文档 SHALL 分开陈述 Native 与 Patch 支持范围、TLS 迁移、API viewer 补丁状态、实际验证版本和未验证环境；不得将仅按主版本选文件等同于所有小版本兼容。
+PVE 8/9 Patch UI SHALL 能切换 provider 而不触发缺失引用异常，正确清理不适用字段。文档 SHALL 分开陈述 Native 与 Patch 支持范围、既有 TLS/凭据限制及后置触发条件、API viewer 补丁状态、实际验证版本和未验证环境；不得将仅按主版本选文件等同于所有小版本兼容，不要求本次迁移凭据或证书。
 
 #### Scenario: Provider switch and compatibility lookup
 - **WHEN** 用户在 PVE 8/9 Patch UI 切离 TrueNAS 并按安装文档选择版本

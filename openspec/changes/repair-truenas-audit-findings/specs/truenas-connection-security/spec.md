@@ -1,22 +1,22 @@
 ## Purpose
 
-定义连接 TrueNAS 时证书、凭据和连接复用的必要保护，保证当前配置决定实际认证身份，避免秘密进入公开配置响应或调试日志，同时保留明确的传输配置语义。
+在保留现有凭据存储和实际连接行为的前提下，限制调试日志中的秘密泄露并隔离不同认证上下文的连接，避免修复过程中引入配置迁移、证书切换或隐含明文降级。
 
 ## ADDED Requirements
 
-### Requirement: Verified TLS and explicit configuration
-未指定传输配置时 SHALL 使用 TLS 并校验证书信任与主机名；显式关闭 SSL SHALL 按配置使用非 TLS 连接并在文档中说明明文传输风险。TLS 失败 MUST 不自动降级为明文或关闭校验。
+### Requirement: Existing configuration remains usable
+本次修复 SHALL 保留现有凭据存储与读取方式、证书验证策略和 TLS 实际行为，不自动迁移或删除配置中的凭据，不要求新增私有文件或受信证书。历史 SSL=0 配置 MUST 不因升级切换为明文。
 
-#### Scenario: Certificate validation
-- **WHEN** TLS 对端证书不受信或主机名不匹配
-- **THEN** 连接失败且不会发送认证凭据；受信且名称匹配的证书可连接
+#### Scenario: Existing configuration after upgrade
+- **WHEN** 使用已有密码或 API key 配置升级插件，包括 SSL=0 或自签证书部署
+- **THEN** 不要求凭据/证书迁移，连接传输方式保持原实际行为；既有安全风险在文档中明确保留而非声称已修复
 
-### Requirement: Sensitive configuration and safe logging
-Native 和 Patch 的密码、API key SHALL 使用适用 PVE 敏感配置读写机制，不在普通配置输出中暴露。所有日志级别包括 debug MUST 不记录原始凭据、认证消息或包含秘密的原始收发载荷；错误诊断保留方法、错误类别及非敏感上下文。
+### Requirement: Safe logging
+所有日志级别包括 debug MUST 不记录原始凭据、认证消息或包含秘密的原始收发载荷；错误诊断 SHALL 保留方法、错误类别及非敏感上下文。
 
-#### Scenario: Debug authentication and config read
-- **WHEN** 启用 debug 后用密码或 API key 认证，并读取普通 PVE 存储配置
-- **THEN** 日志与普通配置输出均不包含原始秘密，认证仍使用正确凭据
+#### Scenario: Debug authentication
+- **WHEN** 启用 debug 后用已有密码或 API key 认证
+- **THEN** 日志不包含原始秘密，认证仍使用当前配置中的正确凭据，不改写凭据存储
 
 ### Requirement: Connection isolation
 连接复用 MUST 与当前 endpoint、传输配置及认证身份一致；凭据轮换 SHALL 导致重新认证，失败初始化不得留下可复用成功状态。不同进程 MUST 不并发使用继承的同一连接与消息状态，目标缓存须与当前连接及 target 一致。

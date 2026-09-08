@@ -23,7 +23,7 @@
 - **THEN** 前两种拒绝生成路径和 QEMU 参数，后一种正常生成 LUN 0
 
 ### Requirement: Conflict-safe allocation and bounded compensation
-分配 SHALL 以服务端唯一约束及有限冲突处理避免同一 target 的重复 LUN；多步骤创建、删除与重建 MUST 检查每步结果。明确失败时只补偿本次创建且身份可确认的资源；结果未知时先查询对象状态，不能盲删或重建已有对象。
+本插件在同一 PVE 集群内参与同一 target 的分配 SHALL 进行协调并有限处理冲突，避免重复 LUN；不得假定服务端重复检查具有原子唯一保证，外部写入不在本集群协调保证范围内。多步骤创建、删除与重建 MUST 检查每步结果。明确失败时只补偿本次创建且身份可确认的资源；结果未知时先查询对象状态，不能盲删或重建已有对象。
 
 #### Scenario: Concurrent mapping allocation
 - **WHEN** 两个操作看到相同空闲 LUN，或服务端返回分配冲突
@@ -34,14 +34,14 @@
 - **THEN** 前者停止依赖删除，后者只清理本次 extent；不能把后一步成功覆盖前一步失败
 
 ### Requirement: Stable mappings across metadata changes
-卷重命名、模板转换、resize 后的必要映射更新 SHALL 保持卷与 extent 对应关系，并保留已有 LUN 身份；无法安全完成时 MUST 明确失败并报告可恢复状态，不以固定 sleep 作为成功证据。
+卷重命名、模板转换、resize 后的必要映射更新 SHALL 保持卷与 extent 对应关系、serial/NAA 和 LUN 身份；不得自动强制删除重建在用 extent。无法安全完成时 MUST 保留对象并明确失败、报告可恢复状态，不以固定 sleep 作为成功证据。
 
 #### Scenario: Rename with an existing mapping
 - **WHEN** 已映射卷从旧名称改为新名称
-- **THEN** 成功后新名称可访问正确卷，LUN 身份保持稳定；中途失败不会报告新卷成功可用
+- **THEN** 成功后新名称可访问正确卷，extent、serial/NAA、LUN 身份保持稳定；需要破坏性重建时保留对象并报错，中途失败不会报告新卷成功可用
 
 ### Requirement: Consistent volume and snapshot names
-克隆返回值 SHALL 保留 PVE 所需父卷关系；所有快照创建、删除、查询、回滚入口 MUST 把 PVE 编码卷名解析为实际 dataset。快照信息 SHALL 以快照短名索引，并按实际快照顺序判断回滚阻挡；卷列表 MUST 限定在配置 dataset 的路径边界内。
+新克隆返回值 SHALL 保留 PVE 所需父卷关系，已有不带父卷前缀的合法卷名 SHALL 继续可用，不批量改写 VM 配置；所有快照创建、删除、查询、回滚入口 MUST 把 PVE 编码卷名解析为实际 dataset。快照信息 SHALL 以快照短名索引，并按实际快照顺序判断回滚阻挡；卷列表 MUST 限定在配置 dataset 的路径边界内。
 
 #### Scenario: Clone snapshot round trip
 - **WHEN** 对 `base-100-disk-0/vm-101-disk-0` 创建、列出、删除或回滚快照 `s1`
@@ -51,8 +51,12 @@
 - **WHEN** 配置 pool 为 `tank/pve`，同时存在 `tank/pve-other` 下的卷
 - **THEN** 后者不会被当成本存储的卷
 
+#### Scenario: Legacy clone name
+- **WHEN** 已有配置使用合法的 `vm-101-disk-0` 而无 parent 前缀
+- **THEN** 卷和快照路径仍能解析为原实际 dataset，不自动重命名或改写 VM 配置
+
 ### Requirement: Remote-only execution boundary
-Native 插件 MUST 不广告或执行依赖 PVE 本机 ZFS 数据集的继承导入/导出及其他未支持回调；受支持能力与实际实现 SHALL 一致。Patch 路由到未实现方法时 SHALL 返回清晰的不支持错误，不产生未定义函数异常。
+Native 插件 MUST 不广告或执行依赖 PVE 本机 ZFS 数据集的危险继承导入/导出回调；受支持能力与实际实现 SHALL 一致，不扩大禁用无关复制、备份或同一共享存储的节点迁移路径。Patch 路由到未实现方法时 SHALL 返回清晰的不支持错误，不产生未定义函数异常。
 
 #### Scenario: Native stream import or export
 - **WHEN** PVE 查询流格式或调用 Native 导入/导出

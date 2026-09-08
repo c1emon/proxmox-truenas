@@ -24,31 +24,29 @@
 
 握手失败或心跳失败重置 socket/auth/frame/result/target-cache。max_retries 定义为连接建立的额外重试上限，所有 endpoint 尝试消耗同一总预算/期限；不得为每条通知重新开始计时。已经发送且无确定响应的写操作不自动重放，交由操作层查询资源状态。
 
-### 3. 使用既有安全机制，不建立秘密管理系统
+### 3. 保留配置兼容，只修日志与连接身份
 
-SSL 默认开启并验证证书和主机名，系统 CA 为信任来源；管理员可将内部 CA 安装到系统信任库，不默认新增 insecure 或任意 CA 配置字段。显式 SSL=0 保留历史意图，文档说明其明文风险，验证失败不降级。
+按用户确认，F09（启用 TLS 验证）、F10（迁移凭据存储）、F25（改变显式 SSL=0 的实际行为）后置。本 change 不变更 SSL_verify_mode、不更换信任来源、不新增证书配置、不写私有凭据文件、不增删 sensitive-properties 或迁移 hooks，也不改写 storage.cfg。旧 SSL=0 实际仍使用 TLS；不能借修复默认值把同一配置改成明文。
 
-已核对官方 PVE 8 `stable-8` 提交 `9aab8f6f52b314fda5e2aceef6472ffd21b7d5b3` 与 PVE 9 `master` 提交 `7c6a03839920d4939a8ae725a2b0ef91c0cbc6c9` 的 Plugin/API2 Storage Config 合同（源码链接见审计报告）。两者都先 extract_sensitive_params，再向 on_add_hook/on_update_hook 传敏感值；PVE 9 API >=13 改调 on_update_hook_full，默认适配旧 on_update_hook。
+保留现有 scfg 取凭据的调用方式。只修 F11 的日志泄露和 F12 的身份复用：假凭据不进入 debug/原始载荷日志，配置轮换重新认证，失败初始化不缓存。未来凭据迁移需另定集群混合版本与当前有效凭据回滚方案；本次无此前置依赖，不为此修改 Patch 分派签名。
 
-Native 与 Patch 的 plugindata 显式声明 truenas_password/truenas_apikey。沿用官方 PBS 模式：on_add_hook/on_update_hook 将值写入 `/etc/pve/priv/storage/` 下按 storeid 隔离的私有文件，exists 才更新、显式 undef 删除，on_delete_hook 清理，权限按私有凭据要求设置。ZFS Patch 只对 TrueNAS provider 操作这些文件，保留其他 provider 原有 hooks。PVE 9 需要完整 delete 上下文时覆盖 on_update_hook_full；旧 hook 仍支持 PVE 8。
-
-运行时必须把 storeid 传到客户端初始化路径，由私有文件读取凭据，放入短生命周期配置副本；不能只写标记导致 Client 收不到密钥，也不向共享 `$scfg` 或普通输出回填秘密。现有明文配置在有锁的配置更新路径迁移到私有文件并移除旧字段，读取兼容仅限迁移期；不新增外部秘密管理依赖。实际文件读写用临时目录替身验证，不在开发机写 `/etc/pve`。
-
-缓存可直接比较私有配置元组（endpoint、TLS、认证内容）和 PID，不必生成凭据 hash/manifest。配置改变、初始化失败或 fork 时废弃旧状态；子进程只关闭自身描述符，不向父进程使用的连接发送 Close。日志默认只记方法、ID、错误类别；不尝试用正则可靠脱敏所有未知 RPC 载荷。
+缓存直接比较当前有效连接配置元组（endpoint、TLS、认证内容）和 PID，不必生成凭据 hash/manifest。配置改变、初始化失败或 fork 时废弃旧状态；子进程只关闭自身描述符，不向父进程使用的连接发送 Close。日志默认只记方法、ID、错误类别；不尝试用正则可靠脱敏所有未知 RPC 载荷。
 
 ### 4. 按操作定义有限补偿与状态查询
 
 create/clone 记录本次明确创建的 zvol、extent、mapping；后续明确失败则逆序清理这些已确认对象。超时等结果未知先用目标 dataset/path/target 查询，确认身份一致才补偿或有限重试；无法确认时报告残留和恢复建议，不动已有同名对象。
 
-delete 每步完成才继续；前一步失败不被后一步清除。LUN 枚举需要有效 target 和列表；mapping create 的明确冲突触发有限重查，不使用固定 sleep 互斥或新分布式锁。实际上限在 Client 一个位置表达。rename/template/必要的 resize 映射更新保留原 lunid；优先更新现有 extent 或在必须重建时保留原映射身份，结果以重新查询确定。服务端是否自动更新 extent 是优化差异，不能成为成功判定的隐含假设。
+delete 每步完成才继续；前一步失败不被后一步清除。LUN 枚举需要有效 target 和列表；明确冲突可有限重查，但不能假定 TrueNAS 对 target+lunid 有数据库原子唯一约束。实施时定向核实并复用 PVE 现有锁，使参与本插件的同一 target 分配路径串行，明确跨 storage ID 的同 target 范围；其他集群/外部客户端写入不在该锁保证范围内。不能只用冲突替身就声称并发安全，也不新建分布式锁服务；现有机制无法覆盖时报告具体阻断，不扩大改造。
+
+实际上限在 Client 一个位置表达，保留现有有效 ID，不因统一常量降到文件内未使用的 255。rename/template/resize 优先原位更新并保持 extent、serial/NAA 与 lunid；不将删除重建在用 extent 作为常规修复。若服务端确需破坏性重建才能继续，操作应明确报错并保留对象，待单独安排维护，不自动 force 删除。服务端是否自动更新 extent 需查询确认，不能作为隐含成功假设。
 
 拒绝通用 saga/持久化补偿队列：目前只有少数同步操作，逐操作小型清理分支足够。拒绝“任何失败删除同名卷”：可能删除其他操作拥有的资源。
 
 ### 5. 固定 PVE 卷名与远程执行边界
 
-以 parse_volname 取得真实 dataset；clone 返回 parent/name，snapshot_info 使用 snapshot_name。保留已有 createtxg 排序并验证回滚 blockers；官方当前父类 parser 已精确过滤 pool，相似前缀只做回归不重复实现。上述 PVE 9 基线 volume_resize 比 PVE 8 多 snapname 参数，并拒绝 snapshot resize；本仓库 Native 尚未接收该参数，计划显式拒绝后再处理当前卷，Patch 保留相同父类行为。
+以 parse_volname 取得真实 dataset；新 clone 返回 parent/name，同时继续接受历史不带 parent 的合法卷名，不批量改写已有 VM 配置或 dataset。snapshot_info 使用 snapshot_name。保留已有 createtxg 排序并验证回滚 blockers；官方当前父类 parser 已精确过滤 pool，相似前缀只做回归不重复实现。PVE 9 volume_resize 比 PVE 8 多 snapname 参数，并拒绝 snapshot resize；本仓库 Native 尚未接收该参数，计划显式拒绝后再处理当前卷，Patch 保留相同父类行为。
 
-显式覆盖 Native stream format/import/export，未实现远程流时拒绝；只审查其余继承入口中真正针对远端池执行本地命令的路径，不重写整个父类。LunCmd 当前不被 dispatch 触达的 snapshot 分支返回明确 unsupported，不凭空新增 Patch 快照 API。
+显式覆盖 Native 危险的本机 ZFS stream format/import/export，防止远端池名误操作本机池，这是保留的必要安全边界；只审查其余继承入口中真正针对远端池执行本地命令的路径，不重写整个父类。明确基于 stream 的存储迁移会受限，同一共享存储的节点迁移有跳过数据传输路径；不据此关闭无关复制/备份功能。LunCmd 当前不被 dispatch 触达的 snapshot 分支返回明确 unsupported，不新增 Patch 快照 API。
 
 ### 6. 先预检再部署，保留旧有效生成产物
 
@@ -58,12 +56,13 @@ build 使用脚本相对目录、输入存在检查和临时输出；diff=1 表�
 
 ## Risks / Trade-offs
 
-- [证书校验使旧自签部署连接失败] → README 给出系统信任迁移顺序，不能以禁用校验作为默认回退。
-- [PVE 敏感值 hook 随版本变化] → 使用上述两个固定代表基线验证读写；不把分支基线证据扩展为所有 8/9 历史小版本支持，不能静默明文回退。
+- [F09：现有 TLS 不验证服务器身份] → 本次为兼容性后置；有明确传输安全要求或另获证书升级授权时承接，不标修复完成。
+- [F10：凭据仍保存在现有配置] → 本次后置；先确认真实 PVE 配置访问边界，有迁移需求时另定集群升级/回滚，不标修复完成。
+- [F25：SSL=0 与实际 TLS 行为不一致] → 文档如实说明并保持当前连接行为；另获传输行为变更授权后承接，不自动切明文。
 - [结果未知时无法确定远端状态] → 允许明确失败并留下诊断；不以“全部自动清理”作为验收目标。
 - [本地测试没有真实 worker/iSCSI 资格] → 报告软件覆盖范围；真实部署前另获授权执行代表性联调，不把它变成本 change 隐含门槛。
 - [图工具未解析 Perl] → 在每阶段执行图 impact/detect_changes 后，用源码和定向回归补足，不将 UNKNOWN 记为低风险。
 
 ## Migration Plan
 
-本轮不执行迁移。未来实施按五阶段 commit，最后同步 README、审计状态和 tasks；只在测试证据证明后勾选。部署前备份当前插件/配置并安装受信 CA，先在可销毁环境验证。回滚使用先前匹配版本的插件与配置；不自动逆向撤销已在 TrueNAS 上完成的数据变更。任务产生的 wsx 临时目录/容器在测试结束清理，共享服务不动。
+本轮不执行迁移或代码实施。未来按五阶段 commit，最后同步 README、审计状态和 tasks；只在测试证据证明后勾选。本 change 无凭据格式/证书/传输配置迁移，不要求批量更新 VM 配置。回滚插件时保留用户当前配置与有效凭据，不恢复过期密钥，不自动逆向撤销 TrueNAS 数据变更。任务产生的 wsx 临时目录/容器在测试结束清理，共享服务不动。
