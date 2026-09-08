@@ -28,8 +28,8 @@
 
 ## Impact
 
-涉及 `perl5/TrueNAS/{Client,Helpers}.pm`、Native `TrueNASPlugin.pm`、Patch `LunCmd/TrueNAS.pm`、PVE 8/9 ZFS/UI 补丁、`deploy.sh`、`build.sh`、README 与审计回归脚本。不新增运行时服务、不修改真实 TrueNAS 数据、不部署到 PVE、不创建 PR 或发布包。
+涉及 `perl5/TrueNAS/{Client,Helpers}.pm`、Native `TrueNASPlugin.pm`、Patch `LunCmd/TrueNAS.pm`、PVE 8/9 ZFS/UI 补丁、`deploy.sh`、`build.sh`、README 与审计回归脚本。不新增运行时服务、不修改真实 TrueNAS 数据、不部署到 PVE 或发布包。本轮只记录规划；后续按用户确认的独立分支流程向上游逐组提交 PR。
 
-本 change 当前只完成规划。实施沿用 `fix/audit-2026-09-08` 分支，须在用户后续明确要求 apply 后开始；所有实施任务保持未完成。实际 PVE worker、iSCSI I/O 与 TrueNAS 联调资格另行授权，本地/隔离测试不冒充该资格。
+本 change 当前只完成规划。`fix/audit-2026-09-08` 保留为审计与规划分支；实施按 [上游 PR 流程与拆分](upstream-pr-workflow.md) 另建各组修复分支，遵守 apply 前的分支检查与创建/切换确认规则，须在用户后续明确要求 apply 后开始；所有实施任务保持未完成。实际 PVE worker、iSCSI I/O 与 TrueNAS 联调资格另行授权，本地/隔离测试不冒充该资格。
 
 用户已明确：非必要的破坏性修复先不做。F09/F10/F25 作为未修复风险保留，不进入本 change 的必做任务；以后有实际安全要求或另获升级迁移授权时再提案。必要正确性修复不得顺带改写已有卷标识、重建在用 extent 或收窄无关能力。
