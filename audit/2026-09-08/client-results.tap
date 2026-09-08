@@ -1,0 +1,37 @@
+ok 1 - BUG: receive timeout returns undef with has_error false
+ok 2 - BUG: create reports success after receive timeout
+ok 3 - BUG: delete reports success after receive timeout
+ok 4 - BUG: resize reports success after receive timeout
+ok 5 - BUG: extent and mapping timeouts still return LUN success
+ok 6 - BUG: valid JSON-RPC error without data.reason is not recorded
+ok 7 - BUG: parse failure crashes error handler with string-as-hash error
+ok 8 - BUG: response accepted without matching request ID
+ok 9 - BUG: null rewrite changes nested application data
+ok 10 - BUG: heartbeat timeout escapes request
+ok 11 - BUG: heartbeat timeout does not reconnect
+ok 12 - control: first frame from multi-frame read is returned
+ok 13 - BUG: buffered second frame is ignored until new socket data arrives
+ok 14 - BUG: disconnect preserves old connection frame data
+ok 15 - BUG: plugin returns new size when resize failed
+ok 16 - BUG: plugin deletion returns normally after all five attempts fail
+ok 17 - BUG: extent without lunid silently selects LUN 0
+ok 18 - BUG: actual client WebSocket frame is unmasked
+ok 19 - BUG: real socket eof returns without error status
+ok 20 - BUG: real socket timeout returns without error status
+ok 21 - BUG: handshake exits only because external watchdog fires
+ok 22 - BUG: configured 0.1s timeout does not bound handshake
+ok 23 - BUG: numeric-looking credentials lose string type and leading zeroes
+ok 24 - BUG: explicit SSL false is replaced with true
+ok 25 - BUG: version parser does not parse its input
+ok 26 - BUG: failed LUN enumeration is treated as an empty target
+ok 27 - BUG: second delete success hides first delete failure
+ok 28 - BUG: clone return value omits base volume prefix
+ok 29 - BUG: snapshot delete uses encoded volume name as dataset
+ok 30 - BUG: rollback check uses encoded volume name as dataset
+ok 31 - BUG: snapshot info keys use full dataset path
+ok 32 - BUG: failed size query becomes a successful zero size
+ok 33 - BUG: failed clone still returns volume name
+ok 34 - BUG: credential change on same host does not create a new client
+ok 35 - BUG: WebSocket Ping payload is delivered as RPC response
+ok 36 - BUG: empty Close frame becomes a timeout instead of an immediate close
+1..36

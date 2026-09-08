@@ -1,0 +1,5 @@
+ok 1 - BUG: PVE 8 provider switch hits missing API-key reference
+ok 2 - BUG: PVE 9 provider switch hits missing API-key reference
+ok 3 - BUG: failed deploy copies still produce success and cluster restart
+ok 4 - BUG: unknown deployment argument loops until external timeout
+1..4

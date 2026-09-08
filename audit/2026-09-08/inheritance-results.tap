@@ -1,0 +1,4 @@
+ok 1 - BUG: remote plugin advertises inherited local ZFS export
+ok 2 - BUG: inherited export builds local zfs send for remote pool
+ok 3 - BUG: inherited import builds local zfs recv for remote pool
+1..3

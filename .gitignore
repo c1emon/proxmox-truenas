@@ -2,3 +2,21 @@
 debug.pm
 debug.sh
 pull.sh
+
+# IDE-specific (Optional, can also be global)
+.vscode/
+.idea/
+.DS_Store
+.gocache
+.claude
+.agents/
+CLAUDE.md
+.op
+.gitnexus
+.xcodebuildmcp/
+.worktrees/
+*har
+*log
+!internal/securelog/
+!internal/securelog/*.go
+.codex
