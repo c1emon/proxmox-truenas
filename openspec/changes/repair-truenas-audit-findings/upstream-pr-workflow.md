@@ -1,6 +1,6 @@
 # 上游 PR 实施流程
 
-用户于 2026-09-08 确认采用本流程。本次只记录规则，不开始业务代码修复、不切换分支、不推送或创建 PR。后续实施仍遵守 apply 前的分支检查及创建/切换确认规则。
+用户于 2026-09-08 确认采用本流程。记录规则时未开始业务代码修复。后续用户已授权首组 F15 的分支、修复、测试和本地提交，明确不创建上游 PR；实施状态见末尾记录。后续实施仍遵守 apply 前的分支检查及创建/切换确认规则。
 
 ## 分支与提交
 
@@ -48,3 +48,16 @@ OpenSpec 读取与代码实施分开定位：保留可读取的规划 checkout�
 组 10、11、12 涉及存储行为，提交实现前先向维护者说明问题及兼容性边界；发送沟通内容需有用户明确授权。
 
 F28 仍在总计划内，低优先级单独安排，不为凑组混入无关 PR。F09/F10/F25 保持用户确认的后置状态，不报告为已修复。真实 PVE/TrueNAS/iSCSI 资格、部署和发布不因采用本流程而自动纳入实施。
+
+## 实施记录
+
+### 组 1：F15 / 任务 4.4（2026-09-08）
+
+- 用户授权：创建修复分支、实施、测试及本地提交；明确不创建上游 PR。本次也未推送。
+- 原仓库：`boomshankerx/proxmox-truenas`；`upstream/main` 基线 `835129a71d94fd5d759a70ed22b23e081dc988c7`。`origin` 为 `c1emon/proxmox-truenas`。
+- 修复分支：`fix/truenas-api-key-field-reference`；代码 worktree 为本仓库下 `.worktrees/fix-truenas-api-key-field-reference`；本地提交 `c4f1a30`。
+- 改动：仅将 PVE 8/9 补丁 provider 回调中的 API Key 查找改为已声明的 `truenas_apikey_field`，保留提交字段名 `truenas_apikey`，不变更配置/API 或凭据存储。
+- 回归：在修复 worktree 执行 `node --test tests/provider-switch.test.cjs`。修改前 2 通过、2 失败（两版切离时查找不存在引用）；修改后 4/4 通过，覆盖切入保留配置、切离清空不适用字段及字段校验状态。仅使用 Node 内置模块。
+- 验证与复核：两份补丁的 `git apply --numstat` 解析、`git diff --check` 通过；独立 reviewer 未发现实质问题。GitNexus 已绑定修复 worktree 执行 impact/detect-changes，但补丁 hunk 没有可映射的索引符号，已用源码、实际差异和回归补足，未把空图当成安全证明。
+- 验证边界：回调与字段替身，不是真实 ExtJS/PVE 浏览器或完整补丁部署验证；未连接 TrueNAS、未使用远程容器，无远程资源需要清理。修复 worktree 保留供后续审阅和推送。
+- 状态：F15 本地实现与验证完成；未推送、未创建 PR、未上游合并。其余组未实施；本记录不触发下一组工作。

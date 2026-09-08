@@ -2,7 +2,7 @@
 
 ## 范围与结论
 
-原报告误删后，根据当前源码重新审计；不声称恢复原文或原编号。基线为 `7b670801e7358d2c1e467416bf022b36e025daff`（插件 1.0.119），分支 `fix/audit-2026-09-08`。覆盖共用 Client/Helpers、Native、Patch LunCmd、PVE 8/9 补丁、部署/生成脚本及说明。此次不修改实现。
+原报告误删后，根据当前源码重新审计；不声称恢复原文或原编号。基线为 `7b670801e7358d2c1e467416bf022b36e025daff`（插件 1.0.119），分支 `fix/audit-2026-09-08`。覆盖共用 Client/Helpers、Native、Patch LunCmd、PVE 8/9 补丁、部署/生成脚本及说明。审计阶段未修改实现；后续修复在独立分支进行，状态见下文。
 
 按独立修复边界归并为 **28 项：P1 15 项、P2 12 项、P3 1 项**。P1 表示可能误报存储变更成功、操作错误对象、泄露凭据或阻断关键操作；P2 为协议/契约/可用性缺陷；P3 为当前未发现生产调用的辅助缺陷。数量不等于断言数，也不强行对齐已丢失报告的 24 项。
 
@@ -14,7 +14,7 @@
 - `inheritance-results.tap` 为保留的历史证据，不能冒充本轮执行；继承问题另由当前源码及官方父类确认。
 - GitNexus 已刷新到上述 HEAD（26 files，104 nodes，112 edges，0 flows）。Perl 仅有文件节点，函数/文件影响查询为 UNKNOWN 或无可解析调用关系，因此结合源码核查，空图不是安全证据。
 
-下文 Tn 指本轮客户端 TAP 第 n 项，Un 指本轮 surface TAP 第 n 项；S 指当前源码确认，H 指历史继承脚本证据。所有项目当前均为**未修复**。
+下文 Tn 指本轮客户端 TAP 第 n 项，Un 指本轮 surface TAP 第 n 项；S 指当前源码确认，H 指历史继承脚本证据。这些是修复前的审计证据，不覆盖历史 BUG 断言。当前仅 **F15 在独立修复分支完成本地验证**；其余 27 项未修复（包含后置 3 项），上游尚未合并。
 
 ### 后续范围决定（用户确认）
 
@@ -121,6 +121,7 @@ F11 日志秘密保护和 F12 缓存身份隔离仍在本次范围。F08 限定�
 - 触发与影响：lookupReference('truenas_apikey') 与字段 truenas_apikey_field 不匹配，切换 provider 抛异常，中断表单处理。
 - 证据：U1–2，提取回调运行，非真实浏览器全流程。
 - 修复/验收：统一引用并验证切入/切出两种行为；Native 当前无此 UI，不将 Patch 结论套用 Native。
+- 当前状态：独立分支 `fix/truenas-api-key-field-reference` 的 `c4f1a30` 已完成修复，本地回调回归 4/4 通过；未推送或创建上游 PR。规划分支保留原始故障代码与证据，详情见 [实施记录](../../openspec/changes/repair-truenas-audit-findings/upstream-pr-workflow.md#实施记录)。
 
 ## P2：协议、合同与工具（12 项）
 
@@ -201,7 +202,7 @@ F11 日志秘密保护和 F12 缓存身份隔离仍在本次范围。F08 限定�
 
 ## 修复计划与任务映射
 
-正式计划见 [OpenSpec change](../../openspec/changes/repair-truenas-audit-findings/proposal.md)，所有实施项保持未勾选。
+正式计划见 [OpenSpec change](../../openspec/changes/repair-truenas-audit-findings/proposal.md)，仅任务 4.4（F15）已勾选；独立分支、验证与上游状态见 [实施记录](../../openspec/changes/repair-truenas-audit-findings/upstream-pr-workflow.md#实施记录)。
 
 | 阶段 | 覆盖发现 | 交付与最小验收 |
 | --- | --- | --- |
