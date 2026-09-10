@@ -1,0 +1,29 @@
+patching file /validation8/expected0
+patching file /validation8/expected1
+Hunk #1 succeeded at 9745 (offset 16 lines).
+Hunk #2 succeeded at 62688 (offset 37 lines).
+Hunk #3 succeeded at 62730 (offset 37 lines).
+Hunk #4 succeeded at 62747 (offset 37 lines).
+Hunk #5 succeeded at 62757 (offset 37 lines).
+Hunk #6 succeeded at 62772 (offset 37 lines).
+PASS PVE 8: first Patch install from real package files
+PASS PVE 8: repeat Patch install from retained originals
+PASS PVE 8: Patch to Native restores originals
+PASS PVE 8: -r -p ignores stale backups after simulated reinstall
+PASS PVE 8: -r ignores stale backups after simulated reinstall
+PASS PVE 8: debug logging enabled
+PASS PVE 8: sed failure stops before restart
+PASS PVE 8: restart failure is not reported as success
+PASS PVE 8: build generates patches that deploy reproduces byte for byte
+patching file /validation9/expected0
+patching file /validation9/expected1
+PASS PVE 9: first Patch install from real package files
+PASS PVE 9: repeat Patch install from retained originals
+PASS PVE 9: Patch to Native restores originals
+PASS PVE 9: -r -p ignores stale backups after simulated reinstall
+PASS PVE 9: -r ignores stale backups after simulated reinstall
+PASS PVE 9: debug logging enabled
+PASS PVE 9: sed failure stops before restart
+PASS PVE 9: restart failure is not reported as success
+PASS PVE 9: build generates patches that deploy reproduces byte for byte
+Package-backed scenarios: 18/18 PASS

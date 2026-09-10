@@ -1,0 +1,50 @@
+TAP version 13
+# Subtest: TrueNAS provider switch enters with configured fields (pvemanagerlib.js.8.patch)
+ok 1 - TrueNAS provider switch enters with configured fields (pvemanagerlib.js.8.patch)
+  ---
+  duration_ms: 3.174243
+  ...
+# Subtest: TrueNAS provider switch leaves with cleared credentials (pvemanagerlib.js.8.patch)
+ok 2 - TrueNAS provider switch leaves with cleared credentials (pvemanagerlib.js.8.patch)
+  ---
+  duration_ms: 0.787735
+  ...
+# Subtest: TrueNAS provider switch enters with configured fields (pvemanagerlib.js.9.patch)
+ok 3 - TrueNAS provider switch enters with configured fields (pvemanagerlib.js.9.patch)
+  ---
+  duration_ms: 0.752935
+  ...
+# Subtest: TrueNAS provider switch leaves with cleared credentials (pvemanagerlib.js.9.patch)
+ok 4 - TrueNAS provider switch leaves with cleared credentials (pvemanagerlib.js.9.patch)
+  ---
+  duration_ms: 0.688499
+  ...
+# Subtest: build generates versioned patches from another cwd and publishes both outputs
+ok 5 - build generates versioned patches from another cwd and publishes both outputs
+  ---
+  duration_ms: 31.288902
+  ...
+# Subtest: build preserves both prior outputs when an input is missing or diff fails
+ok 6 - build preserves both prior outputs when an input is missing or diff fails
+  ---
+  duration_ms: 34.029969
+  ...
+# Subtest: deploy validates flags/resources and native first install without side effects
+ok 7 - deploy validates flags/resources and native first install without side effects
+  ---
+  duration_ms: 113.355923
+  ...
+# Subtest: deploy patches versions 8 and 9 and stops without restart on failures
+ok 8 - deploy patches versions 8 and 9 and stops without restart on failures
+  ---
+  duration_ms: 560.861444
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 869.905912

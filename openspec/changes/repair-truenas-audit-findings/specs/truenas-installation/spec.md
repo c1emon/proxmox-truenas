@@ -12,7 +12,7 @@
 - **THEN** 非零退出，不循环等待，不修改系统文件或重启服务
 
 ### Requirement: Failure-aware deployment
-关键复制、恢复、补丁和依赖安装失败 MUST 终止后续安装并返回非零，不得重启服务或报告成功；首次安装缺少可选旧备份 SHALL 按明确的首次安装流程处理。成功安装 SHALL 仅重启插件生效所需服务，不无条件重启集群仲裁服务。
+关键复制、恢复、补丁和依赖安装失败 MUST 终止后续安装并返回非零，不得重启服务或报告成功；首次安装缺少可选旧备份 SHALL 按明确的首次安装流程处理。成功安装 SHALL 保留原有 corosync、pve-cluster、pvedaemon、pvestatd、pveproxy 重启列表与顺序。缩小重启范围 SHALL 仅记为后续考虑的注释，待真实 PVE 验证后单独决定。
 
 #### Scenario: Copy or patch failure
 - **WHEN** 关键复制失败或补丁不能应用

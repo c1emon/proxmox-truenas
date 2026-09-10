@@ -77,3 +77,34 @@ F28 仍在总计划内，低优先级单独安排，不为凑组混入无关 PR�
 - 测试隔离记录：早期测试副本缺少目标路径替换，该轮部署结果已弃用；检查相关宿主目标均不存在。修正后的测试明确将目标和 TMPDIR 限定到临时目录，APT/systemctl/dpkg 为替身，未执行真实部署。测试临时目录已清理，剩余 0；未使用远程容器、真实 TrueNAS 或磁盘。worktree 保留供审阅。
 - 兼容性边界：没有凭据或配置迁移，没有自动撤销已经完成的文件/包操作；失败时保留可用备份并要求检查后重试。软件验证不等于真实 PVE/ExtJS/iSCSI 或完整发布资格。
 - 状态：本地实现与验证完成；未推送、未创建 PR、未上游合并。其他修复组保持未实施。
+
+### 组 2 远程补充验证（2026-09-10）
+
+- 用户授权使用 `wsx`；测试输入为修复提交 `4dc435f` 的 git archive。宿主为 Linux x86_64 / Docker 29.7.2；独立 Debian 12.15（bookworm-slim）容器，Node.js 18.20.4、Bash 5.2.15、GNU diff 3.8、GNU patch 2.7.6。
+- 容器内 `node --test tests/*.test.cjs` 8/8 通过，`bash -n build.sh deploy.sh` 通过。文件操作使用 Linux 工具；APT、systemctl、版本查询仍为测试替身，目标路径在临时目录。
+- 使用官方 Proxmox 签名 APT 仓库下载并仅解包：PVE 8 的 `pve-manager 8.4.14`、`libpve-storage-perl 8.3.7`，PVE 9 的 `pve-manager 9.2.10`、`libpve-storage-perl 9.1.10`。对解包后的实际 ZFSPlugin.pm 和 pvemanagerlib.js 执行与部署脚本相同的 `patch --batch --forward --ignore-whitespace`；四份补丁均成功，无 .rej。PVE 8 界面补丁的首个 hunk 偏移 16 行，其余偏移 37 行；其他补丁无偏移或 fuzz 提示。
+- 文档待校正：README 将 PVE 9 存储包基线写为 `9.2.10`，本次签名仓库所提供并验证的是 `9.1.10`；不能声称已验证存储包 `9.2.10`。本轮仅记录差异，未改变修复提交。
+- 边界：没有安装 PVE 软件包、启动 PVE 服务或连接 TrueNAS；没有验证 ExtJS 实际交互、Perl 插件运行、iSCSI/ZFS 数据路径或真实服务重启。实际软件包文件匹配不等于完整部署验证。
+- 清理：任务容器 `truenas-scripts-20260910-xLNfWm`、远程目录 `/tmp/truenas-scripts-20260910-xLNfWm` 及本轮新拉取的 Debian 镜像已删除。未推送、未创建 PR。
+
+### 组 2 人工复核调整（2026-09-10）
+
+- 按用户要求恢复原五服务重启列表和顺序；缩小范围改为 deploy.sh 的 TODO，design/spec 同步调整，取代前述三服务方案。
+- 新增同目录 script-common.sh，复用 fail、require_commands、detect_pve_version；加载本身仅定义函数。README 说明公共文件依赖，三个脚本主要阶段添加简短英文注释。
+- 本地及 wsx 独立 Debian bookworm 容器回归均 8/8 通过，包含 Native/Patch 原列表和异 cwd 加载；最终注释修改后 bash -n 与 diff --check 通过。独立 reviewer 未发现实质问题。未执行真实服务重启。
+- 远程任务容器、目录 /tmp/truenas-common-Jnn33L 和本轮拉取的镜像已清理。本次调整保留在工作树供人工 review，未提交、未推送。
+
+- 后续完整 wsx 软件测试：当前工作树回归 8/8、真实软件包文件补充场景 18/18，通过首次/重复 Patch、Native 恢复、模拟重装、debug、sed/重启失败及 build/deploy 衔接检查。详见 `audit/2026-09-08/wsx-full-2026-09-10/README.md`；远程资源已清理。随后仅为各测试补充英文目的注释，语法检查通过。
+
+- 显式数据传递复核：query_package_version(package) 和 detect_pve_version(manager_version) 使用局部变量并通过 stdout 返回；两个脚本显式接收完整包版本和主版本。build cleanup 改为接收路径参数、使用局部 file。deploy 的 stage/work 保留为明确的 trap 生命周期状态。
+- 本轮本地及 wsx Debian 容器回归均 9/9 通过，新增调用者变量不被覆盖、空/失败版本查询、不支持版本和命令替换错误传播验证；Shell 语法检查通过，独立 reviewer 无实质问题。远程容器、目录及本轮拉取镜像已清理。此前 18 个包文件场景未在此次辅助函数调整后重跑，不视为当前版本新增验证。改动仍未提交或推送。
+
+### 组 2 提交与手动 PR 交接（2026-09-10）
+
+- 修复分支 fix/build-deploy-error-handling 已提交并推送到 origin（c1emon/proxmox-truenas），HEAD b58a2f3；包含此前 4dc435f，基于 upstream/main a600a9d。工作树干净。
+- README 存储包基线已校正为 9.1.10；重新查询官方 trixie/pve-no-subscription 的 9.x 包索引确认其为该渠道最新版本，不把 pve-manager 9.2.10 等同于存储包版本。
+- 最终独立复核无阻断问题，提交前执行 GitNexus detect-changes（含暂存新增公共文件）；Shell 调用未被图解析，已用源码及测试补足。最新逻辑在本地及 wsx 回归 9/9 通过。
+- gh 创建上游 PR 失败：GraphQL Resource not accessible by personal access token (createPullRequest)。修复推送成功，PR 尚未创建；用户决定手动创建。
+- PR base：boomshankerx/proxmox-truenas 的 main；head：c1emon/proxmox-truenas 的 fix/build-deploy-error-handling。
+- 英文标题：fix: stop source build and deployment scripts on failures
+- 英文正文：audit/2026-09-08/wsx-full-2026-09-10/upstream-pr-body.md。用户创建后记录 PR URL；等待该 PR 接受后再按既定流程继续下一组。
