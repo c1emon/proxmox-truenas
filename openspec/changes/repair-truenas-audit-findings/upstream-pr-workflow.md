@@ -108,3 +108,5 @@ F28 仍在总计划内，低优先级单独安排，不为凑组混入无关 PR�
 - PR base：boomshankerx/proxmox-truenas 的 main；head：c1emon/proxmox-truenas 的 fix/build-deploy-error-handling。
 - 英文标题：fix: stop source build and deployment scripts on failures
 - 英文正文：audit/2026-09-08/wsx-full-2026-09-10/upstream-pr-body.md。用户创建后记录 PR URL；等待该 PR 接受后再按既定流程继续下一组。
+
+- 用户已手动创建上游 PR #146：https://github.com/boomshankerx/proxmox-truenas/pull/146 。2026-09-10 经 GitHub API 核实为 OPEN，base main，head fix/build-deploy-error-handling，head commit b58a2f3be65daff82a19bf1957bb1da6c0760a2f，标题与准备内容一致。当前等待上游审阅；未合并，不启动下一修复组。
