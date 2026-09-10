@@ -28,7 +28,7 @@
 
 ## Impact
 
-涉及 `perl5/TrueNAS/{Client,Helpers}.pm`、Native `TrueNASPlugin.pm`、Patch `LunCmd/TrueNAS.pm`、PVE 8/9 ZFS/UI 补丁、`deploy.sh`、`build.sh`、README 与审计回归脚本。不新增运行时服务、不修改真实 TrueNAS 数据、不部署到 PVE 或发布包。用户已授权首组 F15 的分支、修复、测试和本地提交，随后授权推送，并已手动创建上游 [PR #144](https://github.com/boomshankerx/proxmox-truenas/pull/144)（Open，待审查）；其他组仍按确认的独立分支流程推进。
+涉及 `perl5/TrueNAS/{Client,Helpers}.pm`、Native `TrueNASPlugin.pm`、Patch `LunCmd/TrueNAS.pm`、PVE 8/9 ZFS/UI 补丁、`deploy.sh`、`build.sh`、README 与审计回归脚本。不新增运行时服务、不修改真实 TrueNAS 数据、不部署到 PVE 或发布包。用户已授权首组 F15 的分支、修复、测试和本地提交，随后授权推送，并已手动创建上游 [PR #144](https://github.com/boomshankerx/proxmox-truenas/pull/144)（已于 2026-09-09 合并）；其他组仍按确认的独立分支流程推进。
 
 本 change 的 F15 已在独立修复分支完成并通过本地回调回归，具体状态见上游 PR 流程中的实施记录。`fix/audit-2026-09-08` 保留为审计与规划分支；实施按 [上游 PR 流程与拆分](upstream-pr-workflow.md) 另建各组修复分支，遵守 apply 前的分支检查与创建/切换确认规则，本次只完成任务 4.4，其他实施任务保持未完成，后续组须在用户明确要求后开始。实际 PVE worker、iSCSI I/O 与 TrueNAS 联调资格另行授权，本地/隔离测试不冒充该资格。
 

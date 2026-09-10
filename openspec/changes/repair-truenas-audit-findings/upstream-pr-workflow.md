@@ -60,5 +60,7 @@ F28 仍在总计划内，低优先级单独安排，不为凑组混入无关 PR�
 - 回归：在修复 worktree 执行 `node --test tests/provider-switch.test.cjs`。修改前 2 通过、2 失败（两版切离时查找不存在引用）；修改后 4/4 通过，覆盖切入保留配置、切离清空不适用字段及字段校验状态。仅使用 Node 内置模块。
 - 验证与复核：两份补丁的 `git apply --numstat` 解析、`git diff --check` 通过；独立 reviewer 未发现实质问题。GitNexus 已绑定修复 worktree 执行 impact/detect-changes，但补丁 hunk 没有可映射的索引符号，已用源码、实际差异和回归补足，未把空图当成安全证明。
 - 验证边界：回调与字段替身，不是真实 ExtJS/PVE 浏览器或完整补丁部署验证；未连接 TrueNAS、未使用远程容器，无远程资源需要清理。修复 worktree 保留供后续审阅和推送。
-- 上游 PR：[#144](https://github.com/boomshankerx/proxmox-truenas/pull/144)；来源 `c1emon:fix/truenas-api-key-field-reference`，目标 `boomshankerx:main`，包含修复提交 `c4f1a30`。2026-09-08 核对为 Open，无 review、尚未合并。
-- 状态：F15 本地实现与验证完成；已推送、已提交 PR，待上游审查。其余组未实施；本记录不触发下一组工作。
+- 上游 PR：[#144](https://github.com/boomshankerx/proxmox-truenas/pull/144)；来源 `c1emon:fix/truenas-api-key-field-reference`，目标 `boomshankerx:main`，包含修复提交 `c4f1a30`。2026-09-10 通过 GitHub API 核对已合并，时间为 2026-09-09 22:56:12（Asia/Shanghai），合并提交 `c025d1a31eb827dbb055c786ec9a2652e13f6b30`。
+- 状态：F15 本地实现与验证完成；已推送且上游 PR 已合并。其余组未实施；本记录不触发下一组工作。
+
+- 合并后同步（2026-09-10）：上游 `main` 更新到 `a600a9d`。本地及 fork 的 `main` 原有 `d14217f`、`7b67080` 两条初始化提交，采用普通合并保留历史，现同步至 `c3945a0`；未强推。同步后的 F15 回归 4/4 通过。下一修复分支仍从最新 `upstream/main` 创建，避免携带 fork 的初始化资料。旧 F15 分支及其 worktree 保留，清理等待用户确认。

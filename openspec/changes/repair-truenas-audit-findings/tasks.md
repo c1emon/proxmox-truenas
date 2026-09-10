@@ -1,4 +1,4 @@
-实施状态：**1/25 项完成（4.4 / F15，独立修复分支已通过本地回归）**。上游 [PR #144](https://github.com/boomshankerx/proxmox-truenas/pull/144) 已创建，待审查、未合并；本规划分支不包含业务补丁。Fxx 对应 `audit/2026-09-08/AUDIT.md`，T/U 为 BUG 复现编号；实施时另建正确行为回归，不覆盖历史证据。每组修改前执行 impact，提交前执行 detect_changes；Perl UNKNOWN 用源码与对应回归补足。按 [上游 PR 流程与拆分](upstream-pr-workflow.md) 在独立修复分支提交，五阶段只作任务分类，不要求按整阶段形成大 PR。跨 PR 任务在全部相关实现与验证完成前保持未勾选；上游合并状态单独记录。
+实施状态：**1/25 项完成（4.4 / F15，独立修复分支已通过本地回归）**。上游 [PR #144](https://github.com/boomshankerx/proxmox-truenas/pull/144) 已于 2026-09-09 合并；本规划分支不包含业务补丁。Fxx 对应 `audit/2026-09-08/AUDIT.md`，T/U 为 BUG 复现编号；实施时另建正确行为回归，不覆盖历史证据。每组修改前执行 impact，提交前执行 detect_changes；Perl UNKNOWN 用源码与对应回归补足。按 [上游 PR 流程与拆分](upstream-pr-workflow.md) 在独立修复分支提交，五阶段只作任务分类，不要求按整阶段形成大 PR。跨 PR 任务在全部相关实现与验证完成前保持未勾选；上游合并状态单独记录。
 
 用户确认后置 F09/F10/F25，三项不属于本 change 必做范围，不能勾选或报告为已修复。下面任务只覆盖本次必要修复与已有行为兼容；其他破坏性扩张需另行确认。
 
