@@ -61,6 +61,19 @@ F28 仍在总计划内，低优先级单独安排，不为凑组混入无关 PR�
 - 验证与复核：两份补丁的 `git apply --numstat` 解析、`git diff --check` 通过；独立 reviewer 未发现实质问题。GitNexus 已绑定修复 worktree 执行 impact/detect-changes，但补丁 hunk 没有可映射的索引符号，已用源码、实际差异和回归补足，未把空图当成安全证明。
 - 验证边界：回调与字段替身，不是真实 ExtJS/PVE 浏览器或完整补丁部署验证；未连接 TrueNAS、未使用远程容器，无远程资源需要清理。修复 worktree 保留供后续审阅和推送。
 - 上游 PR：[#144](https://github.com/boomshankerx/proxmox-truenas/pull/144)；来源 `c1emon:fix/truenas-api-key-field-reference`，目标 `boomshankerx:main`，包含修复提交 `c4f1a30`。2026-09-10 通过 GitHub API 核对已合并，时间为 2026-09-09 22:56:12（Asia/Shanghai），合并提交 `c025d1a31eb827dbb055c786ec9a2652e13f6b30`。
-- 状态：F15 本地实现与验证完成；已推送且上游 PR 已合并。其余组未实施；本记录不触发下一组工作。
+- 状态：F15 本地实现与验证完成；已推送且上游 PR 已合并。此条仅记录组 1 的完成状态。
 
 - 合并后同步（2026-09-10）：上游 `main` 更新到 `a600a9d`。本地及 fork 的 `main` 原有 `d14217f`、`7b67080` 两条初始化提交，采用普通合并保留历史，现同步至 `c3945a0`；未强推。同步后的 F15 回归 4/4 通过。下一修复分支仍从最新 `upstream/main` 创建，避免携带 fork 的初始化资料。用户于 2026-09-10 确认清理后，已删除 F15 本地分支、fork 远程分支及对应 worktree；删除前确认工作树干净，修复提交包含在上游与本地 main 中。审计规划分支保留。
+
+
+### 组 2：F14/F26/F27 / 任务 4.1、4.2、4.3、4.5（2026-09-10）
+
+- 用户授权：从最新上游建立独立分支，修复、测试及本地提交；暂不推送或创建 PR。
+- 基线：`upstream/main` 的 `a600a9d`；分支 `fix/build-deploy-error-handling`，worktree `.worktrees/fix-build-deploy-error-handling`；本地提交 `4dc435f`。
+- 改动：`build.sh` 验证版本及全部输入，从脚本目录生成，正确区分 diff 的差异/失败状态，全部生成成功后才替换输出。`deploy.sh` 先校验参数、命令、版本及资源，允许首次安装没有备份，先在副本应用两份补丁；APT/复制/补丁/客户端同步等失败停止，不进入成功重启；仅重启 pvedaemon/pvestatd/pveproxy。保留 -d/-r/-p 和默认 Native，增加帮助选项；不再操作未安装的 API viewer 产物。
+- 文档：说明 Native/Patch、补丁版本基线、首次安装/恢复及失败后的人工处理、历史 API viewer/orig 补丁、既有 TLS/凭据/debug 风险和 Native stream 迁移未获支持资格；未声称 F08/F09/F10/F11/F25 等其他组已修复。
+- 验证：修复 worktree 中 `node --test tests/*.test.cjs` 8/8 通过（4 个新增脚本分组 + 4 个 F15 回调测试），`bash -n build.sh deploy.sh`、`git diff --check` 通过。脚本分组包含不同 cwd、缺输入、第二次 diff 失败保留双输出、未知参数正常报错退出、版本/资源错误、首次 Native、PVE 8/9 Patch，以及复制/补丁/APT/rsync 失败后的停止行为。
+- 独立复核：生产代码未发现实质问题；测试复核发现超时可能被误判为正确失败，已要求无执行错误/信号且未知参数有明确错误信息，最终回归通过。GitNexus impact 为 UNKNOWN 的 shell 入口已由源码补足，提交前执行 detect-changes；不将无调用流当成安全证明。
+- 测试隔离记录：早期测试副本缺少目标路径替换，该轮部署结果已弃用；检查相关宿主目标均不存在。修正后的测试明确将目标和 TMPDIR 限定到临时目录，APT/systemctl/dpkg 为替身，未执行真实部署。测试临时目录已清理，剩余 0；未使用远程容器、真实 TrueNAS 或磁盘。worktree 保留供审阅。
+- 兼容性边界：没有凭据或配置迁移，没有自动撤销已经完成的文件/包操作；失败时保留可用备份并要求检查后重试。软件验证不等于真实 PVE/ExtJS/iSCSI 或完整发布资格。
+- 状态：本地实现与验证完成；未推送、未创建 PR、未上游合并。其他修复组保持未实施。

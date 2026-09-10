@@ -14,7 +14,7 @@
 - `inheritance-results.tap` 为保留的历史证据，不能冒充本轮执行；继承问题另由当前源码及官方父类确认。
 - GitNexus 已刷新到上述 HEAD（26 files，104 nodes，112 edges，0 flows）。Perl 仅有文件节点，函数/文件影响查询为 UNKNOWN 或无可解析调用关系，因此结合源码核查，空图不是安全证据。
 
-下文 Tn 指本轮客户端 TAP 第 n 项，Un 指本轮 surface TAP 第 n 项；S 指当前源码确认，H 指历史继承脚本证据。这些是修复前的审计证据，不覆盖历史 BUG 断言。当前仅 **F15 在独立修复分支完成本地验证**；F15 已通过 PR #144 合并至上游，其余 27 项未修复（包含后置 3 项）。
+下文 Tn 指本轮客户端 TAP 第 n 项，Un 指本轮 surface TAP 第 n 项；S 指当前源码确认，H 指历史继承脚本证据。这些是修复前的审计证据，不覆盖历史 BUG 断言。当前 **F15 已通过 PR #144 合并至上游；F14、F26、F27 已在第二组独立修复分支完成本地验证和提交，未推送或创建 PR**。其余 24 项未修复（包含后置 3 项）。
 
 ### 后续范围决定（用户确认）
 
@@ -202,7 +202,7 @@ F11 日志秘密保护和 F12 缓存身份隔离仍在本次范围。F08 限定�
 
 ## 修复计划与任务映射
 
-正式计划见 [OpenSpec change](../../openspec/changes/repair-truenas-audit-findings/proposal.md)，仅任务 4.4（F15）已勾选；独立分支、验证与上游状态见 [实施记录](../../openspec/changes/repair-truenas-audit-findings/upstream-pr-workflow.md#实施记录)。
+正式计划见 [OpenSpec change](../../openspec/changes/repair-truenas-audit-findings/proposal.md)，任务 4.1–4.5（F14/F15/F26/F27）已勾选；独立分支、验证与上游状态见 [实施记录](../../openspec/changes/repair-truenas-audit-findings/upstream-pr-workflow.md#实施记录)。
 
 | 阶段 | 覆盖发现 | 交付与最小验收 |
 | --- | --- | --- |
